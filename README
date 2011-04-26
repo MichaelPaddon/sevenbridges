@@ -1,0 +1,4 @@
+Sevenbridges is an add-on module for the Dojo toolkit (http://dojotoolkit.org/)
+that provides support for interactive graphs (of the vertex and edge kind).
+
+Sevenbridges requires the browser to support SVG.

@@ -1,0 +1,79 @@
+{
+	"identifier": "id",
+	"label": "label",
+	"items": [
+		{
+			"id": "blue",
+			"type": "vertex",
+			"label": "Blue Castle",
+			"class": "blue"
+		},
+		{
+			"id": "yellow",
+			"type": "vertex",
+			"label": "Inn",
+			"class": "yellow"
+		},
+		{
+			"id": "red",
+			"type": "vertex",
+			"label": "Red Castle",
+			"class": "red"
+		},
+		{
+			"id": "white",
+			"type": "vertex",
+			"label": "Church",
+			"class": "white"
+		},
+		{
+			"id": "blue_yellow1",
+			"source": "blue",
+			"target": "yellow",
+			"type": "edge",
+			"label": "Bridge"
+		},
+		{
+			"id": "blue_yellow2",
+			"source": "blue",
+			"target": "yellow",
+			"type": "edge",
+			"label": "Bridge"
+		},
+		{
+			"id": "red_yellow1",
+			"source": "red",
+			"target": "yellow",
+			"type": "edge",
+			"label": "Bridge"
+		},
+		{
+			"id": "red_yellow2",
+			"source": "red",
+			"target": "yellow",
+			"type": "edge",
+			"label": "Bridge"
+		},
+		{
+			"id": "blue_white",
+			"source": "blue",
+			"target": "white",
+			"type": "edge",
+			"label": "Bridge"
+		},
+		{
+			"id": "yellow_white",
+			"source": "yellow",
+			"target": "white",
+			"type": "edge",
+			"label": "Bridge"
+		},
+		{
+			"id": "red_white",
+			"source": "red",
+			"target": "white",
+			"type": "edge",
+			"label": "Bridge"
+		}
+	]
+}

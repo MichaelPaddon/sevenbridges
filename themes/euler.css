@@ -1,0 +1,28 @@
+svg.euler circle {
+    fill: black;
+    stroke: black;
+    stroke-width: 1;
+}
+svg.euler line {
+    stroke: black;
+    stroke-width: 1;
+}
+
+svg.euler ._selected .vertex {
+	stroke-width: 3;
+}
+
+svg.euler .pin {
+	display: none;
+}
+svg.euler ._pinned .pin {
+	display: inline;
+}
+
+svg.euler rect.selector {
+	fill: blue;
+	fill-opacity: 0.2;
+	stroke: blue;
+	stroke-width: 1;
+	stroke-dasharray: 5,5;
+}

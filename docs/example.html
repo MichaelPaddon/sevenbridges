@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<!-- dojo configuration -->
+		<script type="text/javascript">
+			/* tell dojo where to find sevenbridges */
+			var djConfig = {
+				parseOnLoad: true,
+				baseUrl: "./",
+				modulePaths: {"sevenbridges": "../../sevenbridges"}
+			}
+        </script>
+
+		<!-- load dojo toolkit -->
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/dojo/1.6/dojo/dojo.xd.js">
+		</script>
+
+		<!-- pull in required objects -->
+		<script type="text/javascript">
+			dojo.require("dojo.data.ItemFileWriteStore");
+			dojo.require("sevenbridges.Graph");
+			dojo.require("sevenbridges.ForceDirectedLayout");
+		</script>
+
+		<!-- load stylesheets -->
+		<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/dojo/1.6/dijit/themes/claro/claro.css"/>
+		<link rel="stylesheet" type="text/css" href="example.css"/>
+	</head>
+
+	<body class="claro">
+		<!-- we need a writable data store to hold the graph -->
+        <div dojoType="dojo.data.ItemFileWriteStore"
+			jsId="myStore" url="example.json"/>
+
+		<!-- we need a graph layout algorithm -->
+		<div dojoType="sevenbridges.ForceDirectedLayout"
+			jsId="myLayout">
+		</div>
+
+		<!-- render the graph -->
+		<div dojoType="sevenbridges.Graph"
+			id="graph" store="myStore" layout="myLayout"/>
+	</body>
+</html>
