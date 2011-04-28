@@ -215,15 +215,6 @@ dojo.declare("sevenbridges.Graph", sevenbridges._SVGWidget, {
 		this._load();
 	},
 
-	getTopic: function(/*Array*/ subtopic){
-		// summary:
-		//		Returns a graph scoped topic.
-
-		var topic = dojo.string.substitute("${0}/${1}",
-			[this.get("id"), subtopic]);
-		return topic; // String
-	},
-
 	pan: function(/*Number*/panX, /*Number*/panY){
 		// summary:
 		//		Pan the graph.

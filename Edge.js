@@ -27,20 +27,13 @@ dojo.declare("sevenbridges.Edge", sevenbridges._SVGWidget, {
     //      DOM XML template
     templateString: "<g xmlns='http://www.w3.org/2000/svg'><line class='sevenbridges_edge_line' x1='0' y1='0' x2='0' y2='0'/><polygon class='sevenbridges_edge_arrow' points='0,-3 -3,3 3,3'/></g>",
 
-	// source: [readonly] sevenbridges.Vertex
-	//		Source vertex.
-	source: null,
-
-	// target: [readonly] sevenbridges.Vertex
-	//		Target vertex.
-	target: null,
-
 	// _tooltip: dijit.Tooltip
 	//		Edge tooltip
 	_tooltip: null,
 
 	// _subscriptions: Array
 	//		Subscriptions to connected vertices.
+	_subscriptions: null,
 
 	postCreate: function(){
         // summary:
