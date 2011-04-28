@@ -18,6 +18,10 @@ dojo.declare("sevenbridges.Graph", sevenbridges._SVGWidget, {
 	//		The store must support read, write, identity and notification.
 	store: null,
 
+	// directed: [const] Boolean
+	//		Is the graph directed?
+	directed: false,
+
 	// layout: [const] sevenbridges.Layout
 	//		The graph layout manager.
 	layout: null,
@@ -461,10 +465,10 @@ dojo.declare("sevenbridges.Graph", sevenbridges._SVGWidget, {
 		}
 
 		// disconnect notification handlers
-		dojo.forEach(this._storeHandles, function(handle){
+		dojo.forEach(this._storeConnections, function(handle){
 			this.disconnect(handle);
 		}, this);
-		this._storeHandles = [];
+		this._storeConnections = [];
 
 		// initialize graph
 		for (var vertexId in this.vertices){
@@ -484,20 +488,20 @@ dojo.declare("sevenbridges.Graph", sevenbridges._SVGWidget, {
 
 				onItem: function(item, request){
 					// call new item handler
-					this._handleNewItem(item, null);
+					this._onNew(item, null);
 				},
 
 				onComplete: function(items, request){
 					this.request = null;
 					this.onLoadEnd(true);
 
-					this._storeHandles.push(
-						this.connect(this.store, "onSet",
-							function(item, attribute, oldValue, newValue){
-								var id = this.store.getIdentity(item);
-								dojo.publish(this.getTopic(id),
-									[attribute, oldValue, newValue]);
-							}));
+					// register for notifications on store
+					this._storeConnections.push(
+						this.connect(this.store, "onNew", this._onNew));
+					this._storeConnections.push(
+						this.connect(this.store, "onSet", this._onSet));
+					this._storeConnections.push(
+						this.connect(this.store, "onDelete", this._onDelete));
 
 					this.startLayout();
 				},
@@ -511,13 +515,11 @@ dojo.declare("sevenbridges.Graph", sevenbridges._SVGWidget, {
 		}
 	},
 
-	_handleNewItem: function(item, parentInfo){
-		var identity = this.store.getIdentity(item);
-
+	_onNew: function(/*Object*/ item, /*Object*/ parentInfo){
 		// what type is the item?
+		var identity = this.store.getIdentity(item);
 		switch (this.store.getValue(item, this.typeAttribute)){
 			case "vertex":
-			case "node": //XXX: deprecated
 				// create a new vertex
 				var vertex = new sevenbridges.Vertex({
 					graph: this,
@@ -529,22 +531,10 @@ dojo.declare("sevenbridges.Graph", sevenbridges._SVGWidget, {
 
 				// place the vertex in the graph
 				dojo.place(vertex.domNode, this._svgNodeGroup);
-
-/*
-				// broadcast new vertex message
-				dojo.publish(this.getTopic(identity), {
-					"action": "new",
-					"vertex": vertex
-				});
-*/
 				break;
 
 			case "edge":
 				// create new edge
-				var sourceId = this.store.getValue(item,
-					this.edgeSourceAttribute);
-				var targetId = this.store.getValue(item,
-					this.edgeTargetAttribute);
 				var edge = new sevenbridges.Edge({
                     graph: this,
 					store: this.store,
@@ -555,14 +545,53 @@ dojo.declare("sevenbridges.Graph", sevenbridges._SVGWidget, {
 
 				// place the edge in the graph
 				dojo.place(edge.domNode, this._svgEdgeGroup);
+				break;
+		}
+	},
 
-/*
-				// broadcast new edge message
-				dojo.publish(this.getTopic(id), {
-					"action": "new",
-					"edge": edge
-				});
-*/
+	_onSet: function(/*Object*/ item, /*String*/ attribute,
+		/*Object*/ oldValue, /*Object*/ newValue){
+		// what type is the item?
+		var identity = this.store.getIdentity(item);
+		switch (this.store.getValue(item, this.typeAttribute)){
+			case "vertex":
+				// notify vertex
+				var vertex = this.vertices[identity];
+				if (vertex){
+					vertex._onSet(attribute, oldValue, newValue);
+				}
+				break;
+
+			case "edge":
+				// notify edge
+				var edge = this.edges[identity];
+				if (edge){
+					edge._onSet(attribute, oldValue, newValue);
+				}
+				break;
+		}
+	},
+
+    _onDelete: function(/*Object*/ item){
+		// what type is the item?
+		var identity = this.store.getIdentity(item);
+		switch (this.store.getValue(item, this.typeAttribute)){
+			case "vertex":
+				// destroy vertex
+				var vertex = this.vertices[identity];
+				if (vertex){
+					vertex.destroyRecursive();
+					delete this.vertices[identity];
+				}
+				break;
+
+			case "edge":
+				// destroy edge
+				var edge = this.edges[identity];
+				if (edge){
+					edge.destroyRecursive();
+					delete this.edge[identity];
+				}
 				break;
 		}
 	},

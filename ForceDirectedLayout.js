@@ -121,9 +121,10 @@ dojo.declare("sevenbridges.ForceDirectedLayout", sevenbridges.AnimatedLayout, {
 		for (var edgeId in vertex.edges){
 			// edge complete?
 			var edge = vertex.edges[edgeId];
-			if (edge.source && edge.target){
-				var otherVertex = (edge.source === vertex)
-					? edge.target : edge.source;
+			var source = edge.getSource();
+			var target = edge.getTarget();
+			if (source && target){
+				var otherVertex = (source === vertex) ? target : source;
 				var f = this.springForce(vertex.x, vertex.y,
 					otherVertex.x, otherVertex.y);
 				sum.x += f.x;

@@ -1,5 +1,4 @@
 dojo.provide("sevenbridges.Edge");
-
 dojo.require("dijit.Tooltip");
 dojo.require("sevenbridges._SVGWidget");
 
@@ -28,23 +27,29 @@ dojo.declare("sevenbridges.Edge", sevenbridges._SVGWidget, {
     //      DOM XML template
     templateString: "<g xmlns='http://www.w3.org/2000/svg'><line class='sevenbridges_edge_line' x1='0' y1='0' x2='0' y2='0'/><polygon class='sevenbridges_edge_arrow' points='0,-3 -3,3 3,3'/></g>",
 
-	classes: null,
+	// source: [readonly] sevenbridges.Vertex
+	//		Source vertex.
 	source: null,
+
+	// target: [readonly] sevenbridges.Vertex
+	//		Target vertex.
 	target: null,
-	directed: false,
+
+	// _tooltip: dijit.Tooltip
+	//		Edge tooltip
 	_tooltip: null,
-	_subscriptions: null,
+
+	// _subscriptions: Array
+	//		Subscriptions to connected vertices.
 
 	postCreate: function(){
         // summary:
         //		Perform post creation initialization.
 
         this.inherited(arguments);
-
-		this.classes = [];
 		this._subscriptions = {};
 
-		//
+		// XXX
 		this._lineNodes = dojo.query("[class=sevenbridges_edge_line]",
 			this.domNode);
 		this._arrowNodes = dojo.query("[class=sevenbridges_edge_arrow]",
@@ -53,17 +58,35 @@ dojo.declare("sevenbridges.Edge", sevenbridges._SVGWidget, {
 		// process all item attributes
         dojo.forEach(this.store.getAttributes(this.item), function(attribute){
 			var values = this.store.getValues(this.item, attribute)
-			this._onChange(attribute, undefined,
+			this._onSet(attribute, undefined,
 				values.length < 2 ? values[0] : values);
 		}, this);
+	},
+
+	getSource: function(){
+		// summary:
+		//		Returns the source vertex, or undefined.
+
+		var sourceId = this.store.getValue(
+			this.item, this.graph.edgeSourceAttribute);
+		return this.graph.vertices[sourceId]; // sevenbridges.Vertex
+	},
+
+	getTarget: function(){
+		// summary:
+		//		Returns the target vertex, or undefined.
+
+		var targetId = this.store.getValue(
+			this.item, this.graph.edgeTargetAttribute);
+		return this.graph.vertices[targetId]; // sevenbridges.Vertex
 	},
 
 	refresh: function(){
 		// summary:
 		//		Refresh the edge's rendering.
 
-		var source = this.source;
-		var target = this.target;
+		var source = this.getSource();
+		var target = this.getTarget();
 		if (source && target){
 			dojo.forEach(this._lineNodes, dojo.hitch(this, function(lineNode){
 				lineNode.setAttributeNS(null, "x1", source.x);
@@ -91,15 +114,14 @@ dojo.declare("sevenbridges.Edge", sevenbridges._SVGWidget, {
 		}
 	},
 
-    _onChange: function(/*String*/ attribute,
+    _onSet: function(/*String*/ attribute,
 		/*Object*/ oldValue, /*Object*/ newValue){
 		// summary:
 		//		Handle a changed item attribute.
 
 		switch(attribute){
 			case this.graph.classAttribute:
-            case "classes": //XXX: deprecated
-				// update classes applied to node
+				// update DOM node class
 				if (oldValue){
 					this.removeClass(oldValue);
 				}
@@ -107,17 +129,21 @@ dojo.declare("sevenbridges.Edge", sevenbridges._SVGWidget, {
 					this.addClass(newValue);
 				}
 
-				this.classes = sevenbridges.str2tokens(newValue);
-				dojo.forEach(this.classes, dojo.hitch(this, function(className){
-					this.graph.styleEdges(className);
-				}));
+				// apply style generator (if any) to edge
+				if (this.graph.generateEdgeStyle){
+					dojo.style(this.domNode,
+						this.graph.generateEdgeStyle(newValue))
+				}
 				break;
 
 			case this.graph.labelAttribute:
+				// remove any existing tooltip
 				if (this._tooltip){
 					this._tooltip.destroyRecursive();
 					this._tooltip = null;
 				}
+
+				// create new tooltip if required
 				if (newValue){
 					this._tooltip = new dijit.Tooltip({
 						connectId: [this.domNode],
@@ -127,63 +153,22 @@ dojo.declare("sevenbridges.Edge", sevenbridges._SVGWidget, {
 				break;
 
 			case this.graph.edgeSourceAttribute:
-				if (this.source){
-					delete this.source.edges[this.id];
-					this.unsubscribe(this._subscriptions.newSource);
-					this.unsubscribe(this._subscriptions.deleteSource);
-				}
-				this.source = this.graph.vertices[newValue];
-				if (this.source){
-					this.source.edges[this.id] = this;
-				}
-
-				// watch for vertex creation and destruction
-				this._subscriptions.newSource = this.subscribe(
-					this.graph.getTopic("new/" + newValue),
-					dojo.hitch(this, function(){
-						this.source = this.graph.vertices[newValue];
-						this.source.edges[this.id] = this;
-					}));
-				this._subscriptions.deleteSource = this.subscribe(
-					this.graph.getTopic("delete/" + newValue),
-					dojo.hitch(this, function(){
-						if (this.source){
-							delete this.source.edges[this.id];
-						}
-						this.source = null;
-					}));
-				break;
-
 			case this.graph.edgeTargetAttribute:
-				if (this.target){
-					delete this.target.edges[this.id];
-					this.unsubscribe(this._subscriptions.newTarget);
-					this.unsubscribe(this._subscriptions.deleteTarget);
-				}
-				this.target = this.graph.vertices[newValue];
-				if (this.target){
-					this.target.edges[this.id] = this;
+				// unsubscribe from old vertex channel
+				if (oldValue){
+					this.unsubscribe(this._subscriptions[oldValue]);
+					delete this._subscriptions[oldValue];
 				}
 
-				// watch for vertex creation and destruction
-				this._subscriptions.newTarget = this.subscribe(
-					this.graph.getTopic("new/" + newValue),
-					dojo.hitch(this, function(){
-						this.target = this.graph.vertices[newValue];
-						this.target.edges[this.id] = this;
-					}));
-				this._subscriptions.deleteTarget = this.subscribe(
-					this.graph.getTopic("delete/" + newValue),
-					dojo.hitch(this, function(){
-						if (this.target){
-							delete this.target.edges[this.id];
-						}
-						this.target = null;
-					}));
-				break;
+				// subscribe to new vertex channel
+				if (newValue){
+					var channel = dojo.string.substitute("${0}/${1}",
+						[this.graph.id, newValue]);
+					this._subscriptions[newValue] = this.subscribe(channel,
+						dojo.hitch(this, this.refresh));
+				}
 
-			case this.directedAttribute:
-				this.directed = Boolean(newValue);
+				this.refresh();
 				break;
 		}
 	}

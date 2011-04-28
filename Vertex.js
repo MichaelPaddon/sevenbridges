@@ -136,15 +136,15 @@ dojo.declare("sevenbridges.Vertex", sevenbridges._SVGWidget, {
 
 		this._circleNode = dojo.query("circle", this.domNode)[0];
 
+		this.channel = dojo.string.substitute("${0}/${1}",
+			[this.graph.id, this.identity]);
+
         // process all item attributes
 		dojo.forEach(this.store.getAttributes(this.item), function(attribute){
 			var values = this.store.getValues(this.item, attribute)
-			this._onChange(attribute, undefined,
+			this._onSet(attribute, undefined,
 				values.length < 2 ? values[0] : values);
 		}, this);
-
-		var topic = this.graph.getTopic(this.store.getIdentity(this.item));
-		this.subscribe(topic, this._onChange);
 
 		this.connect(this, "onMouseOver", this._onMouseOver);
 		this.connect(this, "onMouseOut", this._onMouseOut);
@@ -201,14 +201,13 @@ dojo.declare("sevenbridges.Vertex", sevenbridges._SVGWidget, {
 		console.log(arguments);
 	},
 
-    _onChange: function(/*String*/ attribute,
+    _onSet: function(/*String*/ attribute,
 		/*Object*/ oldValue, /*Object*/ newValue){
 		// summary:
 		//		Handle a changed item attribute.
 
 		switch(attribute){
 			case this.graph.classAttribute:
-			case "classes": //XXX: deprecated
 				// update classes applied to node
 				if (oldValue){
 					this.removeClass(oldValue);
@@ -233,6 +232,7 @@ dojo.declare("sevenbridges.Vertex", sevenbridges._SVGWidget, {
 				this.x = newValue[0];
 				this.y = newValue[1];
 				this.refresh();
+				dojo.publish(this.channel, this);
 				break;
 		}
 	},
