@@ -232,7 +232,7 @@ dojo.declare("sevenbridges.Vertex", sevenbridges._SVGWidget, {
 				this.x = newValue[0];
 				this.y = newValue[1];
 				this.refresh();
-				dojo.publish(this.channel, this);
+				dojo.publish(this.channel, [this]);
 				break;
 		}
 	},
