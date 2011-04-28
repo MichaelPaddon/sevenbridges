@@ -35,6 +35,8 @@ dojo.declare("sevenbridges.Edge", sevenbridges._SVGWidget, {
 	//		Subscriptions to connected vertices.
 	_subscriptions: null,
 
+	_congruencies: {},
+
 	postCreate: function(){
         // summary:
         //		Perform post creation initialization.
@@ -72,6 +74,15 @@ dojo.declare("sevenbridges.Edge", sevenbridges._SVGWidget, {
 		var targetId = this.store.getValue(
 			this.item, this.graph.edgeTargetAttribute);
 		return this.graph.vertices[targetId]; // sevenbridges.Vertex
+	},
+
+	getCongruency: function(){
+		var sourceId = this.store.getValue(
+			this.item, this.graph.edgeSourceAttribute);
+		var targetId = this.store.getValue(
+			this.item, this.graph.edgeTargetAttribute);
+		return dojo.string.substitute("${0}_${1}_${2}",
+			[this.graph.id].concat([sourceId, targetId].sort()));
 	},
 
 	refresh: function(){
@@ -147,19 +158,28 @@ dojo.declare("sevenbridges.Edge", sevenbridges._SVGWidget, {
 
 			case this.graph.edgeSourceAttribute:
 			case this.graph.edgeTargetAttribute:
-				// unsubscribe from old vertex channel
 				if (oldValue){
+					// unsubscribe from old vertex channel
 					this.unsubscribe(this._subscriptions[oldValue]);
 					delete this._subscriptions[oldValue];
 				}
 
-				// subscribe to new vertex channel
 				if (newValue){
+					// subscribe to new vertex channel
 					var channel = dojo.string.substitute("${0}/${1}",
 						[this.graph.id, newValue]);
 					this._subscriptions[newValue] = this.subscribe(channel,
 						dojo.hitch(this, this.refresh));
 				}
+
+				if (this._congruency){
+					delete this._congruencies[this._congruency][this.identity];
+				}
+				this._congruency = this.getCongruency();
+				if (!(this._congrueny in this._congruencies)){
+					this._congruencies[this._congruency] = {};
+				}
+				this._congruencies[this._congruency][this.identity] = this;
 
 				this.refresh();
 				break;
