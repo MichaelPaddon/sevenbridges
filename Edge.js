@@ -25,7 +25,8 @@ dojo.declare("sevenbridges.Edge", sevenbridges._SVGWidget, {
 
 	// templateString: [const] String
     //      DOM XML template.
-    templateString: "<g xmlns='http://www.w3.org/2000/svg'><line class='sevenbridges_edge_line' x1='0' y1='0' x2='0' y2='0'/><polygon class='sevenbridges_edge_arrow' points='0,-3 -3,3 3,3'/></g>",
+    //templateString: "<g xmlns='http://www.w3.org/2000/svg'><line class='sevenbridges_edge_line' x1='0' y1='0' x2='0' y2='0'/><polygon class='sevenbridges_edge_arrow' points='0,-3 -3,3 3,3'/></g>",
+    templateString: '<path xmlns="http://www.w3.org/2000/svg" class="edge"/>',
 
 	// _tooltip: dijit.Tooltip
 	//		Edge tooltip.
@@ -47,12 +48,6 @@ dojo.declare("sevenbridges.Edge", sevenbridges._SVGWidget, {
         this.inherited(arguments);
 		this._congruent = {edges: [this], index: 0};
 		this._subscriptions = {};
-
-		// XXX
-		this._lineNodes = dojo.query("[class=sevenbridges_edge_line]",
-			this.domNode);
-		this._arrowNodes = dojo.query("[class=sevenbridges_edge_arrow]",
-			this.domNode);
 
 		// process all item attributes
         dojo.forEach(this.store.getAttributes(this.item), function(attribute){
@@ -82,35 +77,52 @@ dojo.declare("sevenbridges.Edge", sevenbridges._SVGWidget, {
 
 	refresh: function(){
 		// summary:
-		//		Refresh the edge's rendering.
+		//		Render the edge.
 
 		var source = this.getSource();
 		var target = this.getTarget();
+		var path = "M 0 0";
 		if (source && target){
-			dojo.forEach(this._lineNodes, dojo.hitch(this, function(lineNode){
-				lineNode.setAttributeNS(null, "x1", source.x);
-				lineNode.setAttributeNS(null, "y1", source.y);
-				lineNode.setAttributeNS(null, "x2", target.x);
-				lineNode.setAttributeNS(null, "y2", target.y);
-			}));
-
-			var angle = 0;
-			var dx = target.x - source.x;
-			var dy = target.y - source.y;
-			var d = Math.sqrt(dx * dx + dy * dy);
-			if (d > 0){
-			    angle = Math.asin(dy / d) * 180 / Math.PI + 90;
+			if (this._congruent.edges.length < 2){
+				// a straight line between vertices
+				path = dojo.string.substitute("M ${0} ${1} L ${2} ${3}",
+					[source.x, source.y, target.x, target.y]);
 			}
-			var transform = dojo.string.substitute(
-				"translate(${0},${1}) rotate(${2})", [
-					source.x + (target.x - source.x) / 2,
-					source.y + (target.y - source.y) / 2,
-					dx > 0 ? angle : -angle
-				]);
-			dojo.forEach(this._arrowNodes, dojo.hitch(this, function(arrowNode){
-				arrowNode.setAttributeNS(null, "transform", transform);
-			}));
+			else {
+				// use source vertex as our origin...
+				// calculate distance to target
+				var tx = target.x - source.x;
+				var ty = target.y - source.y;
+				var td = Math.sqrt(tx * tx + ty * ty);
+				if (td > 0){
+					// calculate elevation of target
+					var theta = Math.asin(ty / td)
+						+ (tx < 0 ? Math.PI : 0);
+
+					// control point is a units perpendicular to the midpoint
+					// of the source-target line.
+					var ca = Math.floor((this._congruent.index + 2) / 2)
+						* (this._congruent.index % 2 ? 50 : -50);
+					var cb = td / 2;
+					var cd = Math.sqrt(ca * ca + cb * cb);
+
+					// add elevation of control point
+					theta += Math.asin(ca / cd);
+
+					// calculate control point coordinates
+					var cx = Math.cos(theta) * cd;
+					var cy = Math.sin(theta) * cd;
+
+					// quadratic bezier curve
+					path = dojo.string.substitute(
+						"M ${0} ${1} q ${2} ${3} ${4} ${5}",
+						[source.x, source.y, cx, cy, tx, ty]);
+				}
+			}
 		}
+
+		// redraw path
+		this.domNode.setAttributeNS(null, "d", path);
 	},
 
     _onSet: function(/*String*/ attribute,
@@ -183,6 +195,8 @@ dojo.declare("sevenbridges.Edge", sevenbridges._SVGWidget, {
 					dojo.hitch(this, function(edges){
 						// add ourselves to congruent edge list
 						edges.push(this);
+
+						// update our congruency record
 						this._congruent = {
 							edges: edges,
 							index: edges.length - 1

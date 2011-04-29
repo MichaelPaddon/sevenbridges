@@ -8,6 +8,12 @@ svg.euler line {
     stroke-width: 1;
 }
 
+svg.euler .edge {
+	stroke: black;
+	stroke-width: 1;
+	fill: none;
+}
+
 svg.euler ._selected .vertex {
 	stroke-width: 3;
 }
