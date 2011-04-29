@@ -242,10 +242,12 @@ dojo.declare("sevenbridges.Vertex", sevenbridges._SVGWidget, {
 		if (this.label){
 			lines.push(this.label);
 		}
+/*
 		if (this.classes.length > 0){
 			lines.push("<span class=\"classes\">"
 				+ this.classes.join(" ") + "</span>");
 		}
+*/
 
 		var thumbnail = this.store.getValue(this.item,
 			this.graph.vertexThumbnailAttribute);
