@@ -96,8 +96,10 @@ dojo.declare("sevenbridges.Edge", sevenbridges._SVGWidget, {
 				var td = Math.sqrt(tx * tx + ty * ty);
 				if (td > 0){
 					// calculate elevation of target
-					var theta = Math.asin(ty / td)
-						+ (tx < 0 ? Math.PI : 0);
+					var theta = Math.asin(ty / td);
+					if (tx < 0){
+						theta = Math.PI - theta;
+					}
 
 					// control point is a units perpendicular to the midpoint
 					// of the source-target line.
