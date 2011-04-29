@@ -24,24 +24,28 @@ dojo.declare("sevenbridges.Edge", sevenbridges._SVGWidget, {
 	identity: null,
 
 	// templateString: [const] String
-    //      DOM XML template
+    //      DOM XML template.
     templateString: "<g xmlns='http://www.w3.org/2000/svg'><line class='sevenbridges_edge_line' x1='0' y1='0' x2='0' y2='0'/><polygon class='sevenbridges_edge_arrow' points='0,-3 -3,3 3,3'/></g>",
 
 	// _tooltip: dijit.Tooltip
-	//		Edge tooltip
+	//		Edge tooltip.
 	_tooltip: null,
 
-	// _subscriptions: Array
-	//		Subscriptions to connected vertices.
-	_subscriptions: null,
+	// _congruent: Object
+	//		_congruent.edges is a list of edges with the same endpoints.
+	//		_congruent.index is the index of this edge in _congruent.edges.
+	_congruent: null,
 
-	_congruencies: {},
+	// _subscriptions: Object
+	//		Subscription handles.
+	_subscriptions: null,
 
 	postCreate: function(){
         // summary:
         //		Perform post creation initialization.
 
         this.inherited(arguments);
+		this._congruent = {edges: [this], index: 0};
 		this._subscriptions = {};
 
 		// XXX
@@ -74,15 +78,6 @@ dojo.declare("sevenbridges.Edge", sevenbridges._SVGWidget, {
 		var targetId = this.store.getValue(
 			this.item, this.graph.edgeTargetAttribute);
 		return this.graph.vertices[targetId]; // sevenbridges.Vertex
-	},
-
-	getCongruency: function(){
-		var sourceId = this.store.getValue(
-			this.item, this.graph.edgeSourceAttribute);
-		var targetId = this.store.getValue(
-			this.item, this.graph.edgeTargetAttribute);
-		return dojo.string.substitute("${0}_${1}_${2}",
-			[this.graph.id].concat([sourceId, targetId].sort()));
 	},
 
 	refresh: function(){
@@ -159,28 +154,45 @@ dojo.declare("sevenbridges.Edge", sevenbridges._SVGWidget, {
 			case this.graph.edgeSourceAttribute:
 			case this.graph.edgeTargetAttribute:
 				if (oldValue){
-					// unsubscribe from old vertex channel
-					this.unsubscribe(this._subscriptions[oldValue]);
-					delete this._subscriptions[oldValue];
+					// unsubscribe from old vertex
+					var topic = dojo.string.substitute("${0}/${1}",
+						[this.graph.id, oldValue]);
+					this.unsubscribe(this._subscriptions[topic]);
+					delete this._subscriptions[topic];
 				}
 
 				if (newValue){
-					// subscribe to new vertex channel
-					var channel = dojo.string.substitute("${0}/${1}",
+					// subscribe to new vertex
+					var topic = dojo.string.substitute("${0}/${1}",
 						[this.graph.id, newValue]);
-					this._subscriptions[newValue] = this.subscribe(channel,
+					this._subscriptions[topic] = this.subscribe(topic,
 						dojo.hitch(this, this.refresh));
 				}
 
-				if (this._congruency){
-					delete this._congruencies[this._congruency][this.identity];
+				// subscribe to congruent edges
+				var sourceId = this.store.getValue(
+					this.item, this.graph.edgeSourceAttribute);
+				var targetId = this.store.getValue(
+					this.item, this.graph.edgeTargetAttribute);
+				var topic = dojo.string.substitute("${0}/${1}_${2}",
+					[this.graph.id].concat([sourceId, targetId].sort()));
+				if (this._subscriptions.congruent){
+					this.unsubscribe(this._subscriptions.congruent);
 				}
-				this._congruency = this.getCongruency();
-				if (!(this._congrueny in this._congruencies)){
-					this._congruencies[this._congruency] = {};
-				}
-				this._congruencies[this._congruency][this.identity] = this;
+				this._subscriptions.congruent = this.subscribe(topic,
+					dojo.hitch(this, function(edges){
+						// add ourselves to congruent edge list
+						edges.push(this);
+						this._congruent = {
+							edges: edges,
+							index: edges.length - 1
+						};
+					}));
 
+				// recalculate congruent edges
+				dojo.publish(topic, [[]]);
+
+				// force edge refresh
 				this.refresh();
 				break;
 		}
