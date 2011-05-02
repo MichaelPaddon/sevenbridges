@@ -5,15 +5,8 @@
 	xmlns="http://www.w3.org/2000/svg"
 	xmlns:xlink="http://www.w3.org/1999/xlink"
 	xmlns:ev="http://www.w3.org/2001/xml-events">
-<!--
 	<defs>
-        <filter id="MyFilter" filterUnits="userSpaceOnUse">
-          <feGaussianBlur in="SourceAlpha" result="blur-out" stdDeviation="4" />
-          <feOffset in="blur-out" result="the-shadow" dx="8" dy="8"/> 
-          <feBlend in="SourceGraphic" in2="the-shadow" mode="normal"/>
-        </filter>
 	</defs>
--->
 	<g id="${id}_panzoom">
 		<g id="${id}_edges"/>
 		<g id="${id}_nodes"/>
