@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<!-- load stylesheets -->
+		<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/dojo/1.6/dijit/themes/claro/claro.css"/>
+		<link rel="stylesheet" type="text/css" href="../themes/euler.css"/>
+		<link rel="stylesheet" type="text/css" href="example.css"/>
+	</head>
+
+	<body class="claro">
 		<!-- dojo configuration -->
 		<script type="text/javascript">
 			/* tell dojo where to find sevenbridges */
@@ -23,13 +30,6 @@
 			dojo.require("sevenbridges.ForceDirectedLayout");
 		</script>
 
-		<!-- load stylesheets -->
-		<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/dojo/1.6/dijit/themes/claro/claro.css"/>
-		<link rel="stylesheet" type="text/css" href="../themes/euler.css"/>
-		<link rel="stylesheet" type="text/css" href="example.css"/>
-	</head>
-
-	<body class="claro">
 		<!-- we need a writable data store to hold the graph -->
         <div dojoType="dojo.data.ItemFileWriteStore"
 			jsId="myStore" url="example.json">
