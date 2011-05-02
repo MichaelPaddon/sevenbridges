@@ -1,17 +1,17 @@
-svg.euler circle {
-    fill: black;
-    stroke: black;
-    stroke-width: 1;
+svg.euler .vertex {
+	stroke: black;
+	stroke-width: 1;
+	fill: black;
 }
-svg.euler line {
-    stroke: black;
-    stroke-width: 1;
-}
-
 svg.euler .edge {
 	stroke: black;
 	stroke-width: 1;
 	fill: none;
+}
+svg.euler .arrow {
+	stroke: black;
+	stroke-width: 1;
+	fill: black;
 }
 
 svg.euler ._selected .vertex {
