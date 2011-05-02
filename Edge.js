@@ -25,8 +25,7 @@ dojo.declare("sevenbridges.Edge", sevenbridges._SVGWidget, {
 
 	// templateString: [const] String
     //      DOM XML template.
-    //templateString: "<g xmlns='http://www.w3.org/2000/svg'><line class='sevenbridges_edge_line' x1='0' y1='0' x2='0' y2='0'/><polygon class='sevenbridges_edge_arrow' points='0,-3 -3,3 3,3'/></g>",
-    templateString: '<path xmlns="http://www.w3.org/2000/svg" class="edge"/>',
+    templateString: '<g xmlns="http://www.w3.org/2000/svg"><path class="edge"/></g>',
 
 	// _tooltip: dijit.Tooltip
 	//		Edge tooltip.
@@ -48,6 +47,16 @@ dojo.declare("sevenbridges.Edge", sevenbridges._SVGWidget, {
         this.inherited(arguments);
 		this._congruent = {edges: [this], index: 0};
 		this._subscriptions = {};
+		this._edge = dojo.query("path.edge", this.domNode)[0];
+
+		// need an arrow?
+		if (this.graph.directed){
+			// create arrow
+			this._arrow = dojo.doc.createElementNS(this.SVGNS, "polyline");
+			this._arrow.setAttributeNS(null, "class", "arrow");
+			this._arrow.setAttributeNS(null, "points", "3,0 -3,3 -3,-3");
+			dojo.place(this._arrow, this.domNode);
+		}
 
 		// process all item attributes
         dojo.forEach(this.store.getAttributes(this.item), function(attribute){
@@ -79,52 +88,76 @@ dojo.declare("sevenbridges.Edge", sevenbridges._SVGWidget, {
 		// summary:
 		//		Render the edge.
 
+		// get source and target vertices
 		var source = this.getSource();
 		var target = this.getTarget();
-		var path = "M 0 0";
 		if (source && target){
-			if (this._congruent.edges.length < 2){
-				// a straight line between vertices
-				path = dojo.string.substitute("M ${0} ${1} L ${2} ${3}",
-					[source.x, source.y, target.x, target.y]);
-			}
-			else {
-				// use source vertex as our origin...
-				// calculate distance to target
-				var tx = target.x - source.x;
-				var ty = target.y - source.y;
-				var td = Math.sqrt(tx * tx + ty * ty);
-				if (td > 0){
-					// calculate elevation of target
-					var theta = Math.asin(ty / td);
-					if (tx < 0){
-						theta = Math.PI - theta;
-					}
+			// using source vertex as our origin, calculate distance of target
+			var dx = target.x - source.x;
+			var dy = target.y - source.y;
+			var d = Math.sqrt(dx * dx + dy * dy);
 
-					// control point is a units perpendicular to the midpoint
-					// of the source-target line.
-					var ca = Math.floor((this._congruent.index + 2) / 2)
-						* (this._congruent.index % 2 ? 50 : -50);
-					var cb = td / 2;
-					var cd = Math.sqrt(ca * ca + cb * cb);
+			// non-degenerate edge?
+			if (d > 0){
+				// only one edge between source and target?
+				var path;
+				if (this._congruent.edges.length < 2){
+					// edge is a straight line between vertices
+					path = dojo.string.substitute("M ${0} ${1} L ${2} ${3}",
+						[source.x, source.y, target.x, target.y]);
+				}
+				else {
+					// calculate angle of target
+					var theta = dx > 0
+						? Math.asin(dy / d) : Math.PI - Math.asin(dy / d);
 
-					// add elevation of control point
-					theta += Math.asin(ca / cd);
+					// edge is a quadratic bezier curve, with a control
+					// point "a" units perpendicular to the midpoint
+					// of the source-target line;
+					// calculate distance and angle of control point from source
+					var a = Math.floor((this._congruent.index + 2) / 2)
+						* (this._congruent.index % 2 ? 10 : -10);
+					var b = d / 2;
+					var h = Math.sqrt(a * a + b * b);
+					var iota = theta + Math.asin(a / h);
 
 					// calculate control point coordinates
-					var cx = Math.cos(theta) * cd;
-					var cy = Math.sin(theta) * cd;
+					var cx = Math.cos(iota) * h;
+					var cy = Math.sin(iota) * h;
 
 					// quadratic bezier curve
 					path = dojo.string.substitute(
 						"M ${0} ${1} q ${2} ${3} ${4} ${5}",
-						[source.x, source.y, cx, cy, tx, ty]);
+						[source.x, source.y, cx, cy, dx, dy]);
+				}
+
+				// draw path
+				this._edge.setAttributeNS(null, "d", path);
+
+				// do we have an arrow?
+				if (this._arrow){
+					// find edge midpoint
+					var length = this._edge.getTotalLength();
+					var midpoint = this._edge.getPointAtLength(length/2);
+
+					// move arrow to midpoint of edge and point towards target
+					var theta = dx > 0
+						? Math.asin(dy / d) : Math.PI - Math.asin(dy / d);
+					var transform = dojo.string.substitute(
+						"translate(${0},${1}) rotate(${2})",
+						[midpoint.x, midpoint.y, theta * 180 / Math.PI]);
+					this._arrow.setAttributeNS(null, "transform", transform);
 				}
 			}
+			else {
+				// no edge to render
+				this._edge.setAttributeNS(null, "d", "M 0 0");
+			}
 		}
-
-		// redraw path
-		this.domNode.setAttributeNS(null, "d", path);
+		else {
+			// no edge to render
+			this._edge.setAttributeNS(null, "d", "M 0 0");
+		}
 	},
 
     _onSet: function(/*String*/ attribute,
