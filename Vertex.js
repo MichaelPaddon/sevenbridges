@@ -165,10 +165,12 @@ dojo.declare("sevenbridges.Vertex", sevenbridges._SVGWidget, {
 
 	setColor: function(color){
 		// .style() doesn't work with Mozilla
+		/*
 		dojo.query("[class=vertex]", this.domNode).forEach(
 			function(node){
 				node.setAttributeNS(null, "style", "fill:" + color);
 			});
+		*/
 	},
 
 	move: function(x, y){
@@ -216,10 +218,12 @@ dojo.declare("sevenbridges.Vertex", sevenbridges._SVGWidget, {
 					this.addClass(newValue);
 				}
 
+/*
 				this.classes = sevenbridges.str2tokens(newValue);
 				dojo.forEach(this.classes, dojo.hitch(this, function(className){
 					this.graph.styleVertices(className);
 				}));
+*/
 				this._refreshTooltip();
 				break;
 
