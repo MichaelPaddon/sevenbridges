@@ -52,7 +52,7 @@ dojo.declare("sevenbridges.Edge", sevenbridges._SVGWidget, {
 		// need an arrow?
 		if (this.graph.directed){
 			// create arrow
-			this._arrow = dojo.doc.createElementNS(this.SVGNS, "polyline");
+			this._arrow = dojo.doc.createElementNS(this.SVGNS, "polygon");
 			this._arrow.setAttributeNS(null, "class", "arrow");
 			this._arrow.setAttributeNS(null, "points", "3,0 -3,3 -3,-3");
 			dojo.place(this._arrow, this.domNode);
