@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<!-- load stylesheets -->
+		<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/dojo/1.6/dijit/themes/claro/claro.css"/>
+	</head>
+
+	<body class="claro">
+		<!-- dojo configuration -->
+		<script type="text/javascript">
+			/* tell dojo where to find sevenbridges */
+			var djConfig = {
+				parseOnLoad: true,
+				baseUrl: "./"
+			}
+        </script>
+
+		<!-- load dojo toolkit -->
+		<script type="text/javascript"
+			src="http://ajax.googleapis.com/ajax/libs/dojo/1.6/dojo/dojo.xd.js">
+		</script>
+
+		<!-- pull in required objects -->
+		<script type="text/javascript">
+			dojo.require("dijit.Dialog");
+			dojo.require("dijit.form.Button");
+		</script>
+
+		<h2>Sevenbridges</h2>
+		<img src="logo.png" width="200"/>
+		<h3>Introduction</h3>
+		Graphs are a natural way of representing many data sets and
+		problem types. Sevenbridges is a
+		<a href="http://www.dojotoolkit.org/">Dojo</a> module
+		which makes it easy to display and interact with graphs within
+		a web browser.
+		<p>
+		Sevenbridges requires browser support for SVG.
+
+		<h3>Graph Representation</h3>
+		Sevenbridges is built on top of
+		<a href="http://docs.dojocampus.org/dojo/data">dojo.data</a>.
+		Any data store supporting the
+		<a href="http://docs.dojocampus.org/dojo/data/api/Read">Read</a>,
+		<a href="http://docs.dojocampus.org/dojo/data/api/Write">Write</a>,
+		<a href="http://docs.dojocampus.org/dojo/data/api/Identity">
+			Identity</a> and
+		<a href="http://docs.dojocampus.org/dojo/data/api/Notification">
+			Notification</a>
+		APIs may be used.
+		Vertices and edges may be dynamically created, deleted and updated
+		through the dojo.data API.
+		<p>
+		Sevenbridges interprets items in a data store as vertices or edges,
+		based on the presence of a "type" field.
+		Items with no type or an unrecognized type are ignored.
+		<table border="1">
+			<tr><th>type</th><th>meaning</th></tr>
+			<tr><td>vertex</td><td>item is a vertex</td></tr>
+			<tr><td>edge</td><td>item is an edge</td></tr>
+		</table>
+		<p>
+		In vertex items, the following fields are recognized.
+		All other fields are ignored.
+		We assume that the data store is configured such that the
+		identifier field is "id" and the label field is "label".
+		<table border="1">
+			<tr><th>field</th><th>meaning</th></tr>
+			<tr><td>id</td><td>a unique identifier</td></tr>
+			<tr><td>label</td><td>vertex label (optional)</td></tr>
+			<tr><td>href</td><td>hyperlink URI (optional)</td></tr>
+			<tr><td>weight</td><td>weight of vertex (default 1)</td></tr>
+			<tr><td>class</td><td>DOM class of vertex (optional)</td></tr>
+		</table>
+		<p>
+		In edge items, the following fields are recognized.
+		All other fields are ignored.
+		We assume that the data store is configured such that the
+		identifier field is "id" and the label field is "label".
+		<table border="1">
+			<tr><th>field</th><th>meaning</th></tr>
+			<tr><td>id</td><td>a unique identifier</td></tr>
+			<tr><td>label</td><td>edge label (optional)</td></tr>
+			<tr><td>source</td><td>identifier of source vertex</td></tr>
+			<tr><td>target</th><td>identifier of target vertex</td></tr>
+			<tr><td>weight</td><td>weight of edge (default: 1)</td></tr>
+			<tr><td>class</td><td>DOM class of edge (optional)</td></tr>
+		</table>
+		<p>
+		By way of example, a simple graph is defined in
+		<a href="example.json">example.json</a> in a format suitable
+		for a dojo.data.ItemFileWriteStore.
+
+		<h3>Graph Layouts</h3>
+		Sevenbridges supports several graph layout strategies.
+		Different layouts may be applied to a graph at any time.
+		<table border="1">
+			<tr><th>Widget</th><th>Function</th></tr>
+			<tr><td>sevenbridges.EllipticalLayout</td>
+				<td>Layout vertices in an ellipse</td></tr>
+			<tr><td>sevenbridges.ForceDirectedLayout</td>
+				<td>Layout vertices using a force directed simulation</td></tr>
+			<tr><td>sevenbridges.FastForceDirectedLayout</td>
+				<td>A faster force directed layout</td></tr>
+			<tr><td>sevenbridges.RandomLayout</td>
+				<td>Layout vertices randomly</td></tr>
+		</table>
+		<p>
+		The force directed layouts often provide esthetically pleasing
+		graph layouts.
+
+		<h3>Graph Widget</h3>
+		A graph is displayed by the sevenbridges.Graph widget.
+		This widget supports the following parameters:
+		<table border="1">
+			<tr><th>Parameter</th><th>Semantics</th></tr>
+			<tr><td>store</td><td>underlying data store</td></tr>
+			<tr><td>layout</td><td>layout to apply</td></tr>
+			<tr><td>directed</td><td>directed graph (default: false)</td></tr>
+		</table>
+		<p>
+		<button dojoType="dijit.form.Button">
+			View Example
+			<script type="dojo/method" event="onClick" args="evt">
+				window.open("example.html");
+			</script>
+		</button>
+	</body>
+</html>
