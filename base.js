@@ -1,8 +1,8 @@
 dojo.provide("sevenbridges.base");
 
 (function(){
-	sevenbridges.str2tokens = function(/*String|Array*/strOrArray,
-		/*String|Regex?*/delim){
+	sevenbridges.str2tokens = function(/*String|Array*/ strOrArray,
+		/*String|Regex?*/ delim){
 		// summary:
 		//		Split a string into an array of tokens.
 		//
@@ -32,8 +32,8 @@ dojo.provide("sevenbridges.base");
 		return strOrArray; // Array
 	};
 
-	sevenbridges.hasClass = function(/*DomNode|String*/node,
-		/*String*/className){
+	sevenbridges.hasClass = function(/*DomNode|String*/ node,
+		/*String*/ className){
 		// summary:
 		//		Does the node have the specified class?
 		//		Handles non-HTML nodes gracefully.
@@ -55,8 +55,8 @@ dojo.provide("sevenbridges.base");
 			className) >= 0;
 	};
 
-	sevenbridges.addClass = function(/*DomNode|String*/node,
-		/*String|Array*/classes){
+	sevenbridges.addClass = function(/*DomNode|String*/ node,
+		/*String|Array*/ classes){
 		// summary:
 		// 		Adds the classes to the end of the class list on the node,
 		// 		avoiding duplication. Handles non-HTML nodes gracefully.
@@ -88,8 +88,8 @@ dojo.provide("sevenbridges.base");
 		node.setAttributeNS(null, "class", nodeClasses.join(" "));
 	};
 
-	sevenbridges.removeClass = function(/*DomNode|String*/node,
-		/*String|Array*/classes){
+	sevenbridges.removeClass = function(/*DomNode|String*/ node,
+		/*String|Array*/ classes){
 		// summary:
 		// 		Removes the classes from the class list on the node,
 		// 		if they exist. Handles non-HTML nodes gracefully.
@@ -125,8 +125,8 @@ dojo.provide("sevenbridges.base");
 		node.setAttributeNS(null, "class", nodeClasses.join(" "));
 	};
 
-	sevenbridges.toggleClass = function(/*DomNode|String*/node,
-		/*String|Array*/classes){
+	sevenbridges.toggleClass = function(/*DomNode|String*/ node,
+		/*String|Array*/ classes){
 		// summary:
 		// 		Toggles the classes on the node, adding them if they
 		//		don't exist or removing them if they do.
@@ -167,8 +167,8 @@ dojo.provide("sevenbridges.base");
 		node.setAttributeNS(null, "class", nodeClasses.join(" "));
 	};
 
-	sevenbridges.getBBox = function(/*SVGLocatable*/node, 
-		/*SVGElement?*/referenceNode){
+	sevenbridges.getBBox = function(/*SVGLocatable*/ node, 
+		/*SVGElement?*/ referenceNode){
 		// summary:
 		//		Get the bounding box of a SVG node transformed to
 		//		the coordinates of a reference node.
