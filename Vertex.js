@@ -1,5 +1,4 @@
 dojo.provide("sevenbridges.Vertex");
-
 dojo.require("dijit.ColorPalette");
 dojo.require("dijit.Menu");
 dojo.require("dijit.MenuItem");
@@ -31,10 +30,6 @@ dojo.declare("sevenbridges.Vertex", sevenbridges._SVGWidget, {
 	// templateString: [const] String
 	//		DOM XML template
 	templateString: '<g xmlns="http://www.w3.org/2000/svg"><circle class="vertex" cx="0" cy="0" r="5"/><circle class="pin" cx="0" cy="0" r="1"/></g>',
-
-	// classes: [readonly] Array
-	//		Array of vertex class names.
-	classes: null,
 
 	// edges: [readonly] Object
 	//		Incident edges, indexed by edge id.
@@ -131,7 +126,6 @@ dojo.declare("sevenbridges.Vertex", sevenbridges._SVGWidget, {
     postCreate: function(){
 		this.inherited(arguments);
 
-		this.classes = [];
 		this.edges = {};
 
 		this._circleNode = dojo.query("circle", this.domNode)[0];
@@ -210,21 +204,13 @@ dojo.declare("sevenbridges.Vertex", sevenbridges._SVGWidget, {
 
 		switch(attribute){
 			case this.graph.classAttribute:
-				// update classes applied to node
+				// update DOM node class
 				if (oldValue){
 					this.removeClass(oldValue);
 				}
 				if (newValue){
 					this.addClass(newValue);
 				}
-
-/*
-				this.classes = sevenbridges.str2tokens(newValue);
-				dojo.forEach(this.classes, dojo.hitch(this, function(className){
-					this.graph.styleVertices(className);
-				}));
-*/
-				this._refreshTooltip();
 				break;
 
 			case this.graph.labelAttribute:
@@ -246,12 +232,6 @@ dojo.declare("sevenbridges.Vertex", sevenbridges._SVGWidget, {
 		if (this.label){
 			lines.push(this.label);
 		}
-/*
-		if (this.classes.length > 0){
-			lines.push("<span class=\"classes\">"
-				+ this.classes.join(" ") + "</span>");
-		}
-*/
 
 		var thumbnail = this.store.getValue(this.item,
 			this.graph.vertexThumbnailAttribute);
