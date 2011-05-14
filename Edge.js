@@ -183,18 +183,24 @@ dojo.declare("sevenbridges.Edge", sevenbridges._SVGWidget, {
 				break;
 
 			case this.graph.labelAttribute:
-				// remove any existing tooltip
-				if (this._tooltip){
+				// new label defined?
+				if (newValue){
+					if (this._tooltip){
+						// update tooltip
+						this._tooltip.attr("label", newValue);
+					}
+					else {
+						// create tooltip
+						this._tooltip = new dijit.Tooltip({
+							connectId: [this.domNode],
+							label: newValue
+						});
+					}
+				}
+				else if (this._tooltip){
+					// destroy tooltip
 					this._tooltip.destroyRecursive();
 					this._tooltip = null;
-				}
-
-				// create new tooltip if required
-				if (newValue){
-					this._tooltip = new dijit.Tooltip({
-						connectId: [this.domNode],
-						label: newValue
-					});
 				}
 				break;
 

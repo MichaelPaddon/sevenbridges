@@ -55,10 +55,6 @@ dojo.declare("sevenbridges.Vertex", sevenbridges._SVGWidget, {
 	//		The vertex is pinned down.
 	pinned: false,
 
-	// label: [readonly] String
-	//		Vertex label.
-	label: "",
-
 	// _tooltip: /*dijit.Tooltip*/
 	//		Vertex tooltip.
 	_tooltip: null,
@@ -214,8 +210,25 @@ dojo.declare("sevenbridges.Vertex", sevenbridges._SVGWidget, {
 				break;
 
 			case this.graph.labelAttribute:
-				this.label = newValue;
-				this._refreshTooltip();
+				// new label defined?
+				if (newValue){
+					if (this._tooltip){
+						// update tooltip
+						this._tooltip.attr("label", newValue);
+					}
+					else {
+						// create tooltip
+						this._tooltip = new dijit.Tooltip({
+							connectId: [this.domNode],
+							label: newValue
+						});
+					}
+				}
+				else if (this._tooltip){
+					// destroy tooltip
+					this._tooltip.destroyRecursive();
+					this._tooltip = null;
+				}
 				break;
 
 			case this.graph.vertexPositionAttribute:
@@ -224,38 +237,6 @@ dojo.declare("sevenbridges.Vertex", sevenbridges._SVGWidget, {
 				this.refresh();
 				dojo.publish(this.channel, [this]);
 				break;
-		}
-	},
-
-	_refreshTooltip: function(){
-		var lines = [];
-		if (this.label){
-			lines.push(this.label);
-		}
-
-		var thumbnail = this.store.getValue(this.item,
-			this.graph.vertexThumbnailAttribute);
-		if (thumbnail){
-			lines.push(dojo.string.substitute("<img src=\"${0}\">", [
-				thumbnail
-			]));
-		}
-
-		var label = lines.join("<br>");
-		if (label){
-			if (this._tooltip){
-				this._tooltip.set("label", label);
-			}
-			else {
-				this._tooltip = new dijit.Tooltip({
-					connectId: [this.domNode],
-					label: label
-				});
-			}
-		}
-		else if (this._tooltip){
-			this._tooltip.destroyRecursive();
-			this._tooltip = null;
 		}
 	},
 
