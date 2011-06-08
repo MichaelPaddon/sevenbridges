@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<!-- load stylesheets -->
+		<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/dojo/1.6/dijit/themes/claro/claro.css"/>
+		<link rel="stylesheet" type="text/css" href="../themes/euler.css"/>
+	</head>
+
+	<body class="claro">
+		<!-- dojo configuration -->
+		<script type="text/javascript">
+			/* tell dojo where to find sevenbridges */
+			var djConfig = {
+				parseOnLoad: true,
+				baseUrl: "./",
+				modulePaths: {"sevenbridges": "../../sevenbridges"}
+			}
+        </script>
+
+		<!-- load dojo toolkit -->
+		<script type="text/javascript"
+			src="http://ajax.googleapis.com/ajax/libs/dojo/1.6/dojo/dojo.xd.js">
+		</script>
+
+		<!-- pull in required objects -->
+		<script type="text/javascript">
+			dojo.require("dojo.data.ItemFileWriteStore");
+			dojo.require("sevenbridges.Graph");
+			dojo.require("sevenbridges.ForceDirectedLayout");
+
+			function onLoad(){
+				// parse URL parameters
+				var params = dojo.doc.location.search
+					? dojo.queryToObject(dojo.doc.location.search.substring(1))
+					: {};
+
+				// stylesheets specified?
+				if (params.stylesheet){
+					if (dojo.isArray(params.stylesheet)){
+						dojo.forEach(params.stylesheet, function(stylesheet){
+							addStyleSheet(stylesheet);
+						})
+					}
+					else {
+						addStyleSheet(params.stylesheet);
+					}
+				}
+
+				// graph specified?
+				if (params.graph){
+					loadGraph(params.graph)
+				}
+			}
+
+			function addStyleSheet(url){
+				// append external stylesheet to document head
+				var link = dojo.doc.createElement("link");
+				link.rel = "stylesheet";
+				link.type = "text/css";
+				link.href = url;
+				dojo.place(link, dojo.query("head")[0]);
+				return link;
+			}
+
+			function loadGraph(url){
+				// load a new graph
+				graph.setStore(dojo.data.ItemFileWriteStore({
+					"url": url
+				}));
+			}
+
+			// schedule startup
+			dojo.addOnLoad(onLoad);
+		</script>
+
+		<!-- we need a graph layout algorithm -->
+		<div dojoType="sevenbridges.ForceDirectedLayout"
+			jsId="myLayout">
+		</div>
+
+		<!-- render the graph -->
+		<div dojoType="sevenbridges.Graph"
+			id="graph" jsId="graph" class="euler" layout="myLayout">
+		</div>
+	</body>
+</html>
