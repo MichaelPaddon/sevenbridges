@@ -109,5 +109,9 @@ dojo.declare("sevenbridges._SVGWidget", dijit._Widget, {
 		//		class names.
 
 		sevenbridges.toggleClass(this.domNode, classes);
+	},
+
+	resize: function(){
+		// do nothing
 	}
 });
