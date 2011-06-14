@@ -483,7 +483,7 @@ dojo.declare("sevenbridges.Graph", sevenbridges._SVGWidget, {
 				},
 
 				onComplete: function(items, request){
-					this.request = null;
+					this._fetchRequest = null;
 					this.onLoadEnd(true);
 
 					// register for notifications on store
@@ -498,7 +498,7 @@ dojo.declare("sevenbridges.Graph", sevenbridges._SVGWidget, {
 				},
 
 				onError: function(error, request){
-					this.request = null;
+					this._fetchRequest = null;
                     this.onLoadEnd(false);
 					throw error;
 				}
