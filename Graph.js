@@ -1,5 +1,4 @@
 dojo.provide("sevenbridges.Graph");
-
 dojo.require("dijit._Templated");
 dojo.require("dojox.color");
 dojo.require("dojox.xml.parser");
@@ -211,6 +210,7 @@ dojo.declare("sevenbridges.Graph", sevenbridges._SVGWidget, {
 		//		New data store.
 
 		// set store and load graph
+		this.cancelLayout();
 		this.store = store;
 		this._load();
 	},
@@ -286,9 +286,7 @@ dojo.declare("sevenbridges.Graph", sevenbridges._SVGWidget, {
 		//		Set a new layout.
 
 		// cancel any running layout
-		if (this._layoutThread){
-			this.cancelLayout();
-		}
+		this.cancelLayout();
 
 		this._pauseToggle.set("checked", false);
 
@@ -302,10 +300,10 @@ dojo.declare("sevenbridges.Graph", sevenbridges._SVGWidget, {
 	startLayout: function(){
 		// summary:
 		//		Start the layout thread.
-		//		Does nothing if the layout thread is alive.
+		//		Does nothing if a layout thread is alive.
 
-		// no layout thread?
-		if (this.layout != null){
+		// do we have a layout but no layout thread?
+		if (this.layout && !this._layoutThread){
 			// start new thread
 			this._layoutThread = new sevenbridges.Thread({
 				runnable: this.layout,
@@ -347,6 +345,7 @@ dojo.declare("sevenbridges.Graph", sevenbridges._SVGWidget, {
 
         if (this._layoutThread){
 			this._layoutThread.deferred.cancel();
+			this._layoutThread = null;
 		}
 	},
 
