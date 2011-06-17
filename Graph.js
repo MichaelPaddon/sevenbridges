@@ -267,10 +267,8 @@ dojo.declare("sevenbridges.Graph", sevenbridges._SVGWidget, {
 		// summary:
 		//		Update the viewport transform
 		var transform = dojo.string.substitute(
-			"translate(${0},${1}) scale(${2})", [
-				this.panX * this.inflation,
-				this.panY * this.inflation,
-				this.scale]);
+			"translate(${0},${1}) scale(${2})",
+			[this.panX, this.panY, this.scale]);
 		var node = dojo.byId(this.id + "_panzoom");
 		node.setAttributeNS(null, "transform", transform);
 	},
@@ -749,11 +747,11 @@ dojo.declare("sevenbridges.Graph", sevenbridges._SVGWidget, {
 		// get normalized delta
 		var delta =  dojo.isMozilla
 			? -wheelEvent.detail : wheelEvent.wheelDelta / 120;
-		if (delta > 0){
-			this.setInflation(this.inflation * (1 + delta / 10));
+		if (wheelEvent.shiftKey){
+			this.setScale(this.scale * (1 + delta / 10));
 		}
-		else if (delta < 0){
-			this.setInflation(this.inflation / (1 - delta / 10));
+		else {
+			this.setInflation(this.inflation * (1 + delta / 10));
 		}
 		dojo.stopEvent(wheelEvent); 
 	},

@@ -88,7 +88,6 @@ dojo.declare("sevenbridges.Edge", sevenbridges._SVGWidget, {
 		// summary:
 		//		Render the edge.
 
-console.log("foo");
 		// get source and target vertices
 		var source = this.getSource();
 		var target = this.getTarget();
