@@ -598,129 +598,90 @@ dojo.declare("sevenbridges.Graph", sevenbridges._SVGWidget, {
 	},
 
 	_onMouseDown: function(/*MouseEvent*/ downEvent){
-		var docNode = this.domNode.ownerDocument.documentElement;
-		switch (downEvent.button){
-			case 0: // left button
-				// grab graph
-				if (this._grabbed){
-					break;
-				}
-				this._grabbed = true;
-
-				var rectNode = dojo.byId(this.id + "_selector");
-				var moveHandle = this.connect(docNode, "onmousemove",
-					function(moveEvent){
-						// calculate selection box
-						var x = Math.min(downEvent.layerX,
-							moveEvent.layerX);
-						var y = Math.min(downEvent.layerY,
-							moveEvent.layerY);
-						var width = Math.abs(
-							downEvent.layerX - moveEvent.layerX);
-						var height = Math.abs(
-							downEvent.layerY - moveEvent.layerY);
-
-						// update selector rectangle
-						rectNode.setAttributeNS(null, "x", x);
-						rectNode.setAttributeNS(null, "y", y);
-						rectNode.setAttributeNS(null, "width", width);
-						rectNode.setAttributeNS(null, "height", height);
-
-						dojo.stopEvent(moveEvent);
-					});
-
-				var upHandle = this.connect(docNode, "onmouseup",
-					function(upEvent){
-						if (upEvent.button == downEvent.button){
-							// get selected region
-							var region = rectNode.getBBox();
-
-							// find selected vertices
-							var selected = [];
-							for (var vertexId in this.vertices){
-								// we don't use checkEnclosed() because
-								// of the way it interacts with
-								// pointer-events
-
-								// vertex bounding box enclosed?
-								var vertex = this.vertices[vertexId];
-								var bbox = sevenbridges.getBBox(
-									vertex.domNode, this.domNode);
-								if (bbox.x >= region.x
-									&& bbox.y >= region.y
-									&& bbox.x + bbox.width
-										<= region.x + region.width
-									&& bbox.y + bbox.height
-										<= region.y + region.height){
-									// add to our selected vertex list
-									selected.push(vertex);
-								}
-							}
-
-							// perform selection action
-							if (downEvent.shiftKey){
-								this.addSelection(selected);
-							}
-							else if (downEvent.ctrlKey){
-								this.toggleSelection(selected);
-							}
-							else {
-								this.setSelection(selected);
-							}
-
-							// clean up
-							rectNode.setAttributeNS(null, "width", 0);
-							rectNode.setAttributeNS(null, "height", 0);
-							this.disconnect(moveHandle);
-							this.disconnect(upHandle);
-							this._grabbed = false;
-
-							dojo.stopEvent(upEvent);
-						}
-					});
-				break;
-
-			case 1: // middle button
-				if (downEvent.ctrlKey){
-					// grab graph
-					if (this._grabbed){
-						break;
-					}
+		// graph not grabbed?
+		if (!this._grabbed){
+			switch (downEvent.button){
+				case 0: // left button
 					this._grabbed = true;
+					var rectNode = dojo.byId(this.id + "_selector");
 
-					var scale = this.scale;
-					var moveHandle = this.connect(docNode, "onmousemove",
+					// handle mouse movement
+					var moveHandle = this.connect(dojo.doc, "onmousemove",
 						function(moveEvent){
-							var dy = moveEvent.layerY - downEvent.layerY;
-							if (dy > 0){
-								this.zoom(scale * (1 + dy / 100));
-							}
-							else if (dy < 0){
-								this.zoom(scale / (1 - dy / 100));
-							}
+							// calculate selection box
+							var width = moveEvent.screenX - downEvent.screenX;
+							var height = moveEvent.screenY - downEvent.screenY;
+
+							// update selector rectangle
+							rectNode.setAttributeNS(null, "x", Math.min(
+								downEvent.offsetX, downEvent.offsetX + width));
+							rectNode.setAttributeNS(null, "y", Math.min(
+								downEvent.offsetY, downEvent.offsetY + height));
+							rectNode.setAttributeNS(null, "width",
+								Math.abs(width));
+							rectNode.setAttributeNS(null, "height",
+								Math.abs(height));
+
 							dojo.stopEvent(moveEvent);
 						});
 
-					var upHandle = this.connect(docNode, "onmouseup",
+					// handle up button
+					var upHandle = this.connect(dojo.doc, "onmouseup",
 						function(upEvent){
 							if (upEvent.button == downEvent.button){
+								// get selected region
+								var region = rectNode.getBBox();
+
+								// find selected vertices
+								var selected = [];
+								for (var vertexId in this.vertices){
+									// we don't use checkEnclosed() because
+									// of the way it interacts with
+									// pointer-events
+
+									// vertex bounding box enclosed?
+									var vertex = this.vertices[vertexId];
+									var bbox = sevenbridges.getBBox(
+										vertex.domNode, this.domNode);
+									if (bbox.x >= region.x
+										&& bbox.y >= region.y
+										&& bbox.x + bbox.width
+											<= region.x + region.width
+										&& bbox.y + bbox.height
+											<= region.y + region.height){
+										// add to our selected vertex list
+										selected.push(vertex);
+									}
+								}
+
+								// perform selection action
+								if (downEvent.shiftKey){
+									this.addSelection(selected);
+								}
+								else if (downEvent.ctrlKey){
+									this.toggleSelection(selected);
+								}
+								else {
+									this.setSelection(selected);
+								}
+
+								// clean up
+								rectNode.setAttributeNS(null, "width", 0);
+								rectNode.setAttributeNS(null, "height", 0);
 								this.disconnect(moveHandle);
 								this.disconnect(upHandle);
 								this._grabbed = false;
+
 								dojo.stopEvent(upEvent);
 							}
 						});
-				}
-				else {
-					// grab graph
-					if (this._grabbed){
-						break;
-					}
-					this._grabbed = true;
+					break;
 
+				case 1: // middle button
+					this._grabbed = true;
 					var panX = this.panX;
 					var panY = this.panY;
-					var moveHandle = this.connect(docNode, "onmousemove",
+					var moveHandle = this.connect(dojo.doc, "onmousemove",
 						function(moveEvent){
 							var dx = moveEvent.layerX - downEvent.layerX;
 							var dy = moveEvent.layerY - downEvent.layerY;
@@ -728,7 +689,7 @@ dojo.declare("sevenbridges.Graph", sevenbridges._SVGWidget, {
 							dojo.stopEvent(moveEvent);
 						});
 
-					var upHandle = this.connect(docNode, "onmouseup",
+					var upHandle = this.connect(dojo.doc, "onmouseup",
 						function(upEvent){
 							if (upEvent.button == downEvent.button){
 								this.disconnect(moveHandle);
@@ -737,8 +698,8 @@ dojo.declare("sevenbridges.Graph", sevenbridges._SVGWidget, {
 								dojo.stopEvent(upEvent);
 							}
 						});
-				}
-				break;
+					break;
+			}
 		}
 		dojo.stopEvent(downEvent);
 	},
