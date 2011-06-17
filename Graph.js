@@ -90,9 +90,22 @@ dojo.declare("sevenbridges.Graph", sevenbridges._SVGWidget, {
 	//		A mapping of vertex ids to selected vertices.
 	selection: null,
 
+	// panX: [readonly] Number
+	//		X offset of origin
 	panX: 0,
+
+	// panY: [readonly] Number
+	//		Y offset of origin
 	panY: 0,
+
+	// scale: [readonly] Number
+	//		The scale factor.
 	scale: 1,
+
+	// inflation: [readonly] Number
+	//		The inflation (stretching of space) factor.
+	inflation: 1,
+
 	focus: null,
 	grab: null,
 	templateString: dojo.cache("sevenbridges", "templates/Graph.svg"),
@@ -178,11 +191,15 @@ dojo.declare("sevenbridges.Graph", sevenbridges._SVGWidget, {
 			dojo.isMozilla ? "DOMMouseScroll" : "onmousewheel",
 			this, this._onMouseWheel);
 
+		// reset viewport
+		this.panX = this.domNode.parentNode.clientWidth / 2;
+		this.panY = this.domNode.parentNode.clientHeight / 2;
+		this.scale = 1;
+		this.inflation = 1;
+		this._updateTransform();
+
 		// load graph
 		this._load();
-
-		this.panAndZoom(this.domNode.parentNode.clientWidth / 2,
-			this.domNode.parentNode.clientHeight / 2, this.scale);
 
 		this._pauseToggle = new dijit.CheckedMenuItem({
 			label: "Pause Layout",
@@ -215,49 +232,45 @@ dojo.declare("sevenbridges.Graph", sevenbridges._SVGWidget, {
 		this._load();
 	},
 
-	pan: function(/*Number*/panX, /*Number*/panY){
+	setPan: function(/*Number*/ panX, /*Number*/ panY){
 		// summary:
-		//		Pan the graph.
-		//
-		// panX:
-		//		X coordinate of graph origin.
-		//
-		// panY:
-		//		Y coordinate of graph origin.
-
-		this.panAndZoom(panX, panY, this.scale);
-	},
-
-	zoom: function(/*Number*/scale){
-		// summary:
-		//		Zoom the graph.
-		//
-		// scale:
-		//		Scale factor of graph, from 0 upwards.
-		//		Values less than 1 reduce; those greater than 1 magnify.
-
-		this.panAndZoom(this.panX, this.panY, scale);
-	},
-
-	panAndZoom: function(/*Number*/panX, /*Number*/panY, /*Number*/scale){
-		// summary:
-		//		Pan and zoom the graph.
-		//
-		// panX:
-		//		X coordinate of graph origin.
-		//
-		// panY:
-		//		Y coordinate of graph origin.
-		//
-		// scale:
-		//		Scale factor of graph, from 0 upwards.
-		//		Values less than 1 reduce; those greater than 1 magnify.
+		//		Pan the viewport.
 
 		this.panX = panX;
 		this.panY = panY;
+		this._updateTransform();
+	},
+
+	setScale: function(/*Number*/ scale){
+		// summary:
+		//		Scale the viewport.
+
 		this.scale = scale;
+		this._updateTransform();
+	},
+
+	setInflation: function(/*Number*/ inflation){
+		// summary:
+		//		Inflate the viewport
+
+		this.inflation = inflation;
+		for (var vertexId in this.vertices){
+			this.vertices[vertexId].refresh();
+		}
+		for (var edgeId in this.edges){
+			this.edges[edgeId].refresh();
+		}
+		this._updateTransform();
+	},
+
+	_updateTransform: function(){
+		// summary:
+		//		Update the viewport transform
 		var transform = dojo.string.substitute(
-			"translate(${0},${1}) scale(${2})", [panX, panY, scale]);
+			"translate(${0},${1}) scale(${2})", [
+				this.panX * this.inflation,
+				this.panY * this.inflation,
+				this.scale]);
 		var node = dojo.byId(this.id + "_panzoom");
 		node.setAttributeNS(null, "transform", transform);
 	},
@@ -713,7 +726,7 @@ dojo.declare("sevenbridges.Graph", sevenbridges._SVGWidget, {
 						function(moveEvent){
 							var dx = moveEvent.layerX - downEvent.layerX;
 							var dy = moveEvent.layerY - downEvent.layerY;
-							this.pan(panX + dx, panY + dy);
+							this.setPan(panX + dx, panY + dy);
 							dojo.stopEvent(moveEvent);
 						});
 
@@ -733,13 +746,14 @@ dojo.declare("sevenbridges.Graph", sevenbridges._SVGWidget, {
 	},
 
 	_onMouseWheel: function(/*MouseEvent*/ wheelEvent){
+		// get normalized delta
 		var delta =  dojo.isMozilla
 			? -wheelEvent.detail : wheelEvent.wheelDelta / 120;
 		if (delta > 0){
-			this.zoom(this.scale * (1 + delta / 10));
+			this.setInflation(this.inflation * (1 + delta / 10));
 		}
 		else if (delta < 0){
-			this.zoom(this.scale / (1 - delta / 10));
+			this.setInflation(this.inflation / (1 - delta / 10));
 		}
 		dojo.stopEvent(wheelEvent); 
 	},

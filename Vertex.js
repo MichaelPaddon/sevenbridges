@@ -43,6 +43,10 @@ dojo.declare("sevenbridges.Vertex", sevenbridges._SVGWidget, {
 	//		Y coordinate of vertex.
 	y: 0,
 
+	// weight: [readonly] Number
+	//		Weight of vertex.
+	weight: 1,
+
 	// scale: [readonly] Number
 	//		Scale factor of vertex.
 	scale: 1,
@@ -169,17 +173,15 @@ dojo.declare("sevenbridges.Vertex", sevenbridges._SVGWidget, {
 	},
 
 	refresh: function(){
-		var weight = 1;
-		if (this.store.hasAttribute(this.item,
-			this.graph.vertexWeightAttribute)){
-			weight += this.store.getValue(this.item,
-				this.graph.vertexWeightAttribute);
-		}
+		// calculate raw position of vertex
+		var inflation = this.graph.inflation;
+		this.rawX = this.x * inflation;
+		this.rawY = this.y * inflation;
 
-		// move the vertex to it's nominal coordinates
+		// update the vertex transform
 		this.domNode.setAttributeNS(null, "transform",
 			dojo.string.substitute("translate(${0},${1}) scale(${2})", [
-				this.x, this.y, weight * this.scale
+				this.rawX, this.rawY, this.weight * this.scale
 			]));
 
 		// update our edges
@@ -229,6 +231,11 @@ dojo.declare("sevenbridges.Vertex", sevenbridges._SVGWidget, {
 					this._tooltip.destroyRecursive();
 					this._tooltip = null;
 				}
+				break;
+
+			case this.graph.vertexWeightAttribute:
+				this.weight = newValue;
+				this.refresh();
 				break;
 
 			case this.graph.vertexPositionAttribute:

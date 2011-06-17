@@ -88,13 +88,14 @@ dojo.declare("sevenbridges.Edge", sevenbridges._SVGWidget, {
 		// summary:
 		//		Render the edge.
 
+console.log("foo");
 		// get source and target vertices
 		var source = this.getSource();
 		var target = this.getTarget();
 		if (source && target){
 			// using source vertex as our origin, calculate distance of target
-			var dx = target.x - source.x;
-			var dy = target.y - source.y;
+			var dx = target.rawX - source.rawX;
+			var dy = target.rawY - source.rawY;
 			var d = Math.sqrt(dx * dx + dy * dy);
 
 			// non-degenerate edge?
@@ -104,7 +105,7 @@ dojo.declare("sevenbridges.Edge", sevenbridges._SVGWidget, {
 				if (this._congruent.edges.length < 2){
 					// edge is a straight line between vertices
 					path = dojo.string.substitute("M ${0} ${1} L ${2} ${3}",
-						[source.x, source.y, target.x, target.y]);
+						[source.rawX, source.rawY, target.rawX, target.rawY]);
 				}
 				else {
 					// calculate angle of target
@@ -128,7 +129,7 @@ dojo.declare("sevenbridges.Edge", sevenbridges._SVGWidget, {
 					// quadratic bezier curve
 					path = dojo.string.substitute(
 						"M ${0} ${1} q ${2} ${3} ${4} ${5}",
-						[source.x, source.y, cx, cy, dx, dy]);
+						[source.rawX, source.rawY, cx, cy, dx, dy]);
 				}
 
 				// draw path
