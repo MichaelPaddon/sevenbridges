@@ -106,6 +106,10 @@ dojo.declare("sevenbridges.Graph", sevenbridges._SVGWidget, {
 	//		The inflation (stretching of space) factor.
 	inflation: 1,
 
+	// rotate: [readonly] Number
+	//		The rotation of the graph
+	rotate: 0,
+
 	focus: null,
 	grab: null,
 	templateString: dojo.cache("sevenbridges", "templates/Graph.svg"),
@@ -263,12 +267,17 @@ dojo.declare("sevenbridges.Graph", sevenbridges._SVGWidget, {
 		this._updateTransform();
 	},
 
+	setRotate: function(/*Number*/ rotate){
+		this.rotate = rotate;
+		this._updateTransform();
+	},
+
 	_updateTransform: function(){
 		// summary:
 		//		Update the viewport transform
 		var transform = dojo.string.substitute(
-			"translate(${0},${1}) scale(${2})",
-			[this.panX, this.panY, this.scale]);
+			"translate(${0},${1}) rotate(${2}) scale(${3})", [
+				this.panX, this.panY, this.rotate, this.scale]);
 		var node = dojo.byId(this.id + "_panzoom");
 		node.setAttributeNS(null, "transform", transform);
 	},
@@ -681,14 +690,23 @@ dojo.declare("sevenbridges.Graph", sevenbridges._SVGWidget, {
 					this._grabbed = true;
 					var panX = this.panX;
 					var panY = this.panY;
+					var rotate = this.rotate;
+
+					// handle mouse move
 					var moveHandle = this.connect(dojo.doc, "onmousemove",
 						function(moveEvent){
-							var dx = moveEvent.layerX - downEvent.layerX;
-							var dy = moveEvent.layerY - downEvent.layerY;
-							this.setPan(panX + dx, panY + dy);
+							var dx = moveEvent.screenX - downEvent.screenX;
+							var dy = moveEvent.screenY - downEvent.screenY;
+							if (downEvent.shiftKey){
+								this.setRotate(dx);
+							}
+							else {
+								this.setPan(panX + dx, panY + dy);
+							}
 							dojo.stopEvent(moveEvent);
 						});
 
+					// handle up button
 					var upHandle = this.connect(dojo.doc, "onmouseup",
 						function(upEvent){
 							if (upEvent.button == downEvent.button){
