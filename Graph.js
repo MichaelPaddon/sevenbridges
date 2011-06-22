@@ -615,21 +615,19 @@ dojo.declare("sevenbridges.Graph", sevenbridges._SVGWidget, {
 					var rectNode = dojo.byId(this.id + "_selector");
 
 					// handle mouse movement
+					var [x0, y0] = this._mouseToSVG(downEvent);
 					var moveHandle = this.connect(dojo.doc, "onmousemove",
 						function(moveEvent){
-							// calculate selection box
-							var width = moveEvent.screenX - downEvent.screenX;
-							var height = moveEvent.screenY - downEvent.screenY;
-
 							// update selector rectangle
-							rectNode.setAttributeNS(null, "x", Math.min(
-								downEvent.offsetX, downEvent.offsetX + width));
-							rectNode.setAttributeNS(null, "y", Math.min(
-								downEvent.offsetY, downEvent.offsetY + height));
+							var [x1, y1] = this._mouseToSVG(moveEvent);
+							rectNode.setAttributeNS(null, "x",
+								Math.min(x0, x1));
+							rectNode.setAttributeNS(null, "y",
+								Math.min(y0, y1));
 							rectNode.setAttributeNS(null, "width",
-								Math.abs(width));
+								Math.abs(x1 - x0));
 							rectNode.setAttributeNS(null, "height",
-								Math.abs(height));
+								Math.abs(y1 - y0));
 
 							dojo.stopEvent(moveEvent);
 						});
@@ -695,8 +693,8 @@ dojo.declare("sevenbridges.Graph", sevenbridges._SVGWidget, {
 					// handle mouse move
 					var moveHandle = this.connect(dojo.doc, "onmousemove",
 						function(moveEvent){
-							var dx = moveEvent.screenX - downEvent.screenX;
-							var dy = moveEvent.screenY - downEvent.screenY;
+							var dx = moveEvent.clientX - downEvent.clientX;
+							var dy = moveEvent.clientY - downEvent.clientY;
 							if (downEvent.shiftKey){
 								this.setRotate(dx);
 							}
@@ -734,4 +732,13 @@ dojo.declare("sevenbridges.Graph", sevenbridges._SVGWidget, {
 		}
 		dojo.stopEvent(wheelEvent); 
 	},
+
+    _mouseToSVG: function(/*MouseEvent*/ mouseEvent){
+		var matrix = this.domNode.getScreenCTM();
+		var point = this.domNode.createSVGPoint();
+		point.x = mouseEvent.clientX;
+		point.y = mouseEvent.clientY;
+		point = point.matrixTransform(matrix.inverse());
+		return [point.x, point.y]
+	}
 });
