@@ -27,7 +27,7 @@ svg.euler ._pinned .pin {
 svg.euler rect.selector {
 	fill: blue;
 	fill-opacity: 0.1;
-	stroke: blue;
-	stroke-width: 0.1;
+	stroke: darkblue;
+	stroke-width: 0.5;
 	#stroke-dasharray: 5,5;
 }
