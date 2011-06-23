@@ -615,20 +615,20 @@ dojo.declare("sevenbridges.Graph", sevenbridges._SVGWidget, {
 					var rectNode = dojo.byId(this.id + "_selector");
 
 					// handle mouse movement
-					var [x0, y0] = this._mouseToSVG(downEvent);
+					var downPoint = this._mouseToSVG(downEvent);
 					var moveHandle = this.connect(dojo.doc, "onmousemove",
 						function(moveEvent){
+console.log(moveEvent);
 							// update selector rectangle
-							var [x1, y1] = this._mouseToSVG(moveEvent);
+							var movePoint = this._mouseToSVG(moveEvent);
 							rectNode.setAttributeNS(null, "x",
-								Math.min(x0, x1));
+								Math.min(downPoint.x, movePoint.x));
 							rectNode.setAttributeNS(null, "y",
-								Math.min(y0, y1));
+								Math.min(downPoint.y, movePoint.y));
 							rectNode.setAttributeNS(null, "width",
-								Math.abs(x1 - x0));
+								Math.abs(movePoint.x - downPoint.x));
 							rectNode.setAttributeNS(null, "height",
-								Math.abs(y1 - y0));
-
+								Math.abs(movePoint.y - downPoint.y));
 							dojo.stopEvent(moveEvent);
 						});
 
@@ -678,7 +678,6 @@ dojo.declare("sevenbridges.Graph", sevenbridges._SVGWidget, {
 								this.disconnect(moveHandle);
 								this.disconnect(upHandle);
 								this._grabbed = false;
-
 								dojo.stopEvent(upEvent);
 							}
 						});
@@ -693,6 +692,7 @@ dojo.declare("sevenbridges.Graph", sevenbridges._SVGWidget, {
 					// handle mouse move
 					var moveHandle = this.connect(dojo.doc, "onmousemove",
 						function(moveEvent){
+console.log(moveEvent);
 							var dx = moveEvent.clientX - downEvent.clientX;
 							var dy = moveEvent.clientY - downEvent.clientY;
 							if (downEvent.shiftKey){
@@ -739,6 +739,6 @@ dojo.declare("sevenbridges.Graph", sevenbridges._SVGWidget, {
 		point.x = mouseEvent.clientX;
 		point.y = mouseEvent.clientY;
 		point = point.matrixTransform(matrix.inverse());
-		return [point.x, point.y]
+		return point;
 	}
 });
