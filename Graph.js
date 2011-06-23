@@ -618,7 +618,6 @@ dojo.declare("sevenbridges.Graph", sevenbridges._SVGWidget, {
 					var downPoint = this._mouseToSVG(downEvent);
 					var moveHandle = this.connect(dojo.doc, "onmousemove",
 						function(moveEvent){
-console.log(moveEvent);
 							// update selector rectangle
 							var movePoint = this._mouseToSVG(moveEvent);
 							rectNode.setAttributeNS(null, "x",
@@ -692,7 +691,6 @@ console.log(moveEvent);
 					// handle mouse move
 					var moveHandle = this.connect(dojo.doc, "onmousemove",
 						function(moveEvent){
-console.log(moveEvent);
 							var dx = moveEvent.clientX - downEvent.clientX;
 							var dy = moveEvent.clientY - downEvent.clientY;
 							if (downEvent.shiftKey){
