@@ -3,7 +3,6 @@ dojo.require("dijit.ColorPalette");
 dojo.require("dijit.Menu");
 dojo.require("dijit.MenuItem");
 dojo.require("dijit.Tooltip");
-//dojo.require("dojox.widget.ColorPicker");
 dojo.require("sevenbridges._SVGWidget");
 
 dojo.declare("sevenbridges.Vertex", sevenbridges._SVGWidget, {
@@ -30,10 +29,6 @@ dojo.declare("sevenbridges.Vertex", sevenbridges._SVGWidget, {
 	// templateString: [const] String
 	//		DOM XML template
 	templateString: dojo.cache("sevenbridges", "templates/Vertex.svg"),
-
-	// edges: [readonly] Object
-	//		Incident edges, indexed by edge id.
-	edges: null,
 
 	// x: [readonly] Number
 	//		X coordinate of vertex.
@@ -183,11 +178,6 @@ dojo.declare("sevenbridges.Vertex", sevenbridges._SVGWidget, {
 			dojo.string.substitute("translate(${0},${1}) scale(${2})", [
 				this.rawX, this.rawY, this.weight * this.scale
 			]));
-
-		// update our edges
-		for (var edgeId in this.edges){
-			this.edges[edgeId].refresh();
-		}
 	},
 
 	apply: function(){
