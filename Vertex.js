@@ -30,6 +30,10 @@ dojo.declare("sevenbridges.Vertex", sevenbridges._SVGWidget, {
 	//		DOM XML template
 	templateString: dojo.cache("sevenbridges", "templates/Vertex.svg"),
 
+	// channel: [readonly]
+	//		Channel on which this vertex publishes events
+	channel: null,
+
 	// x: [readonly] Number
 	//		X coordinate of vertex.
 	x: 0,
@@ -41,6 +45,10 @@ dojo.declare("sevenbridges.Vertex", sevenbridges._SVGWidget, {
 	// weight: [readonly] Number
 	//		Weight of vertex.
 	weight: 1,
+
+	// translate: [readonly] Object
+	//		Current translation of node (via x and y members).
+	translate: null,
 
 	// scale: [readonly] Number
 	//		Scale factor of vertex.
@@ -121,12 +129,10 @@ dojo.declare("sevenbridges.Vertex", sevenbridges._SVGWidget, {
     postCreate: function(){
 		this.inherited(arguments);
 
-		this.edges = {};
-
-		this._circleNode = dojo.query("circle", this.domNode)[0];
-
 		this.channel = dojo.string.substitute("${0}/${1}",
 			[this.graph.id, this.identity]);
+		this.translate = {x: 0, y: 0};
+		this._circleNode = dojo.query("circle", this.domNode)[0];
 
         // process all item attributes
 		dojo.forEach(this.store.getAttributes(this.item), function(attribute){
@@ -170,13 +176,12 @@ dojo.declare("sevenbridges.Vertex", sevenbridges._SVGWidget, {
 	refresh: function(){
 		// calculate raw position of vertex
 		var inflation = this.graph.inflation;
-		this.rawX = this.x * inflation;
-		this.rawY = this.y * inflation;
+		this.translate = {x: this.x * inflation, y: this.y * inflation}
 
 		// update the vertex transform
 		this.domNode.setAttributeNS(null, "transform",
 			dojo.string.substitute("translate(${0},${1}) scale(${2})", [
-				this.rawX, this.rawY, this.weight * this.scale
+				this.translate.x, this.translate.y, this.weight * this.scale
 			]));
 	},
 
@@ -232,7 +237,8 @@ dojo.declare("sevenbridges.Vertex", sevenbridges._SVGWidget, {
 				this.x = newValue[0];
 				this.y = newValue[1];
 				this.refresh();
-				dojo.publish(this.channel, [this]);
+				dojo.publish(this.channel,
+					[this, this.graph.vertexPositionAttribute]);
 				break;
 		}
 	},

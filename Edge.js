@@ -93,8 +93,8 @@ dojo.declare("sevenbridges.Edge", sevenbridges._SVGWidget, {
 		var target = this.getTarget();
 		if (source && target){
 			// using source vertex as our origin, calculate distance of target
-			var dx = target.rawX - source.rawX;
-			var dy = target.rawY - source.rawY;
+			var dx = target.translate.x - source.translate.x;
+			var dy = target.translate.y - source.translate.y;
 			var d = Math.sqrt(dx * dx + dy * dy);
 
 			// non-degenerate edge?
@@ -103,8 +103,9 @@ dojo.declare("sevenbridges.Edge", sevenbridges._SVGWidget, {
 				var path;
 				if (this._congruent.edges.length < 2){
 					// edge is a straight line between vertices
-					path = dojo.string.substitute("M ${0} ${1} L ${2} ${3}",
-						[source.rawX, source.rawY, target.rawX, target.rawY]);
+					path = dojo.string.substitute("M ${0} ${1} L ${2} ${3}", [
+						source.translate.x, source.translate.y,
+						target.translate.x, target.translate.y]);
 				}
 				else {
 					// calculate angle of target
@@ -127,8 +128,9 @@ dojo.declare("sevenbridges.Edge", sevenbridges._SVGWidget, {
 
 					// quadratic bezier curve
 					path = dojo.string.substitute(
-						"M ${0} ${1} q ${2} ${3} ${4} ${5}",
-						[source.rawX, source.rawY, cx, cy, dx, dy]);
+						"M ${0} ${1} q ${2} ${3} ${4} ${5}", [
+							source.translate.x, source.translate.y,
+							cx, cy, dx, dy]);
 				}
 
 				// draw path
@@ -207,7 +209,7 @@ dojo.declare("sevenbridges.Edge", sevenbridges._SVGWidget, {
 			case this.graph.edgeSourceAttribute:
 			case this.graph.edgeTargetAttribute:
 				if (oldValue){
-					// unsubscribe from old vertex
+					// unsubscribe from old vertex channel
 					var topic = dojo.string.substitute("${0}/${1}",
 						[this.graph.id, oldValue]);
 					this.unsubscribe(this._subscriptions[topic]);
@@ -215,7 +217,7 @@ dojo.declare("sevenbridges.Edge", sevenbridges._SVGWidget, {
 				}
 
 				if (newValue){
-					// subscribe to new vertex
+					// subscribe to new vertex channel
 					var topic = dojo.string.substitute("${0}/${1}",
 						[this.graph.id, newValue]);
 					this._subscriptions[topic] = this.subscribe(topic,
