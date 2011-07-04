@@ -25,7 +25,7 @@ dojo.declare("sevenbridges.Edge", sevenbridges._SVGWidget, {
 
 	// templateString: [const] String
     //      DOM XML template.
-    templateString: '<g xmlns="http://www.w3.org/2000/svg"><path class="edge"/></g>',
+    templateString: dojo.cache("sevenbridges", "templates/Edge.svg"),
 
 	// _tooltip: dijit.Tooltip
 	//		Edge tooltip.
@@ -47,7 +47,7 @@ dojo.declare("sevenbridges.Edge", sevenbridges._SVGWidget, {
         this.inherited(arguments);
 		this._congruent = {edges: [this], index: 0};
 		this._subscriptions = {};
-		this._edge = dojo.query("path.edge", this.domNode)[0];
+		this._edge = dojo.query("path.sevenbridgesEdge", this.domNode)[0];
 
 		// need an arrow?
 		if (this.graph.directed){

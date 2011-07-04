@@ -1,5 +1,4 @@
 dojo.provide("sevenbridges._SVGWidget");
-
 dojo.require("dijit._Widget");
 dojo.require("sevenbridges.base");
 

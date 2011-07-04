@@ -29,7 +29,7 @@ dojo.declare("sevenbridges.Vertex", sevenbridges._SVGWidget, {
 
 	// templateString: [const] String
 	//		DOM XML template
-	templateString: '<g xmlns="http://www.w3.org/2000/svg"><circle class="vertex" cx="0" cy="0" r="5"/><circle class="pin" cx="0" cy="0" r="1"/></g>',
+	templateString: dojo.cache("sevenbridges", "templates/Vertex.svg"),
 
 	// edges: [readonly] Object
 	//		Incident edges, indexed by edge id.
