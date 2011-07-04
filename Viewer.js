@@ -16,14 +16,16 @@ dojo.declare("sevenbridges.Viewer", [dijit._Widget, dijit._Templated], {
 	// summary:
 	//		A Viewer is an embeddable graph viewing widget.
 
-    store: null,
-
 	templateString: dojo.cache("sevenbridges", "templates/Viewer.html"),
     widgetsInTemplate: true,
 
     postCreate: function(){
 		this.inherited(arguments);
-		this.store = new dojo.data.ItemFileWriteStore({});
+	},
+
+	startup: function(){
+		this.inherited(arguments);
+		this._graph.setLayout(this._forceDirectedLayout);
 	},
 
 	loadFromSearchString: function(/*String*/ search){
@@ -121,5 +123,4 @@ dojo.declare("sevenbridges.Viewer", [dijit._Widget, dijit._Templated], {
 
 			// schedule startup
 			dojo.addOnLoad(onLoad);
-		</script>
 */
