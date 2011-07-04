@@ -126,7 +126,7 @@ dojo.declare("sevenbridges.Graph", sevenbridges._SVGWidget, {
 		this._mouseDown = null;
 	},
 
-	postCreate: function(){
+	startup: function(){
 		this.inherited(arguments);
 
 		// look for specified style sheet
@@ -186,7 +186,7 @@ dojo.declare("sevenbridges.Graph", sevenbridges._SVGWidget, {
 		dojo.place(this._svgRoot, this.domNode);
 */
 
-		this._svgNodeGroup = dojo.query("#" + this.id + "_nodes")[0];
+		this._svgNodeGroup = dojo.query("#" + this.id + "_vertices")[0];
 		this._svgEdgeGroup = dojo.query("#" + this.id + "_edges")[0];
 
 		// interaction events

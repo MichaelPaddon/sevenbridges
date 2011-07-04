@@ -1,5 +1,5 @@
 <svg version="1.1"
-	class="${class}"
+	class="sevenbridgesGraph ${class}"
 	baseProfile="full"
 	style="height:100%; width:100%;"
 	xmlns="http://www.w3.org/2000/svg"
@@ -9,8 +9,8 @@
 	</defs>
 	<g id="${id}_panzoom">
 		<g id="${id}_edges"/>
-		<g id="${id}_nodes"/>
+		<g id="${id}_vertices"/>
 	</g>
-	<rect id="${id}_selector" class="selector"
+	<rect id="${id}_selector" class="sevenbridgesSelector"
 		x="0" y="0" width="0" height="0"/>
 </svg>
