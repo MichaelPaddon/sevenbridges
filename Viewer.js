@@ -27,6 +27,22 @@ dojo.declare("sevenbridges.Viewer", [dijit._Widget, dijit._Templated], {
 	startup: function(){
 		this.inherited(arguments);
 		this._graph.setLayout(this._forceDirectedLayout);
+
+		// create standby widget
+		this._standby = new dojox.widget.Standby({
+			target: this.domNode,
+            zindex: 1000
+		});
+		dojo.doc.body.appendChild(this._standby.domNode);
+        this._standby.startup();
+
+		// show standby when graph loading
+		dojo.connect(this._graph, "onLoadStart", this, function(){
+			this._standby.show()
+        });
+		dojo.connect(this._graph, "onLoadEnd", this, function(){
+			this._standby.hide()
+        });
 	},
 
 	loadFromSearchString: function(/*String*/ search){
