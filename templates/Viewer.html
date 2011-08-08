@@ -3,13 +3,15 @@
 		<div data-dojo-type="dijit.PopupMenuBarItem">
 			<span>File</span>
 			<div data-dojo-type="dijit.Menu">
-				<div data-dojo-type="dijit.MenuItem">
+				<div data-dojo-type="dijit.MenuItem"
+                    data-dojo-props="disabled: true">
 					Load...
 					<script type="dojo/connect" event="onClick">
 						dojo.query("#loadFileSelector")[0].click();
 					</script>
 				</div>
-				<div data-dojo-type="dijit.MenuItem">
+				<div data-dojo-type="dijit.MenuItem"
+                    data-dojo-props="disabled: true">
 					Save...
 					<script type="dojo/connect" event="onClick">
 						saveFile();
@@ -17,6 +19,15 @@
 				</div>
 			</div>
 		</div>
+        <div data-dojo-type="dijit.PopupMenuBarItem">
+            <span>Layout</span>
+            <div data-dojo-type="dijit.Menu">
+                <input data-dojo-type="dijit.form.CheckBox" data-dojo-props="
+                        onChange: dojo.hitch(this, this.pauseLayout)">
+                    Pause
+                </input>
+            </div>
+        </div>
 	</div>
 
 	<div data-dojo-type="dijit.layout.ContentPane" region="center"

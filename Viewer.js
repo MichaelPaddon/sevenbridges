@@ -6,6 +6,7 @@ dojo.require("dijit.Menu");
 dojo.require("dijit.MenuBar");
 dojo.require("dijit.PopupMenuBarItem");
 dojo.require("dijit.form.Button");
+dojo.require("dijit.form.CheckBox");
 dojo.require("dijit.layout.BorderContainer");
 dojo.require("dijit.layout.ContentPane");
 dojo.require("dojox.widget.Standby");
@@ -60,7 +61,7 @@ dojo.declare("sevenbridges.Viewer", [dijit._Widget, dijit._Templated], {
 		}));
 	},
 
-	_addStyleSheet: function addStyleSheet(url){
+	_addStyleSheet: function(url){
 		// append external stylesheet to document head
 		var link = dojo.doc.createElement("link");
 		link.rel = "stylesheet";
@@ -68,7 +69,16 @@ dojo.declare("sevenbridges.Viewer", [dijit._Widget, dijit._Templated], {
 		link.href = url;
 		dojo.place(link, dojo.query("head")[0]);
 		return link;
-	}
+	},
+
+    pauseLayout: function(state){
+        if (state){
+            this._graph.suspendLayout();
+        }
+        else {
+            this._graph.resumeLayout();
+        }
+    }
 });
 
 /*
