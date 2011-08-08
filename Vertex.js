@@ -181,7 +181,8 @@ dojo.declare("sevenbridges.Vertex", sevenbridges._SVGWidget, {
 		// update the vertex transform
 		this.domNode.setAttributeNS(null, "transform",
 			dojo.string.substitute("translate(${0},${1}) scale(${2})", [
-				this.translate.x, this.translate.y, this.weight * this.scale
+				this.translate.x, this.translate.y,
+                (this.weight +1) * this.scale
 			]));
 	},
 
